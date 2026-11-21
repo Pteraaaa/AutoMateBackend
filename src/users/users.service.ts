@@ -8,23 +8,9 @@ export type User = any;
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService){
+  constructor(private readonly prismaService: PrismaService){}
 
-  }
-  private readonly users = [
-    {
-      userId: 1,
-      username: 'john',
-      password: 'changeme'
-    },
-    {
-      userId: 2,
-      username: 'maria',
-      password: 'guess'
-    }
-  ]
-
-  async create(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto) {
 
     const user = await this.prismaService.user.create({
       data: {
@@ -44,15 +30,7 @@ export class UsersService {
     return user;
   }
 
-  findAll() {
-    return this.prismaService.user.findMany();
-  }
-
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find(user => user.username === username);
-  }
-
-  async findByEmail(email: string){
+  async findUserByEmail(email: string){
     return this.prismaService.user.findUnique({
       where: {
         email: email
@@ -60,7 +38,7 @@ export class UsersService {
     })
   }
 
-  async findEmailAndCredential(email: string){
+  async findUserWithCredentialByEmail(email: string){
     return this.prismaService.user.findUnique({
       where: {
         email: email,
@@ -71,7 +49,7 @@ export class UsersService {
     });
   }
 
-  async getProfile(userId: number){
+  async findUserProfileById(userId: number){
     return this.prismaService.user.findUnique({
       where: {
         id: userId

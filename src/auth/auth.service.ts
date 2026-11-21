@@ -1,7 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service.js';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service.js';
 import * as bcrypt from 'bcrypt';
 import { CreateUserDto } from '../users/dto/create-user.dto.js';
 
@@ -10,7 +9,7 @@ export class AuthService {
   constructor(private usersService: UsersService, private jwtService: JwtService){}
 
   async validateUser(email: string, pass: string){
-    const user = await this.usersService.findEmailAndCredential(email)
+    const user = await this.usersService.findUserWithCredentialByEmail(email)
 
     if(!user || !user.credential){
       return null;
@@ -22,7 +21,7 @@ export class AuthService {
       return null;
     }
 
-    const { credential, ...userData} = user;
+    const { credential, ...userData } = user;
 
     return userData;
   }
@@ -35,7 +34,7 @@ export class AuthService {
   }
   
   async register(createUserDto: CreateUserDto){
-    const existingUser = await this.usersService.findByEmail(createUserDto.email);
+    const existingUser = await this.usersService.findUserByEmail(createUserDto.email);
 
     if(existingUser){
       throw new ConflictException('Email already exists');
@@ -46,6 +45,6 @@ export class AuthService {
       10
     )
 
-    return this.usersService.create({...createUserDto, password: hashedPassword})
+    return this.usersService.createUser({...createUserDto, password: hashedPassword})
   }
 }
