@@ -5,8 +5,8 @@ import { UsersModule } from '../users/users.module.js';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './local.strategy.js';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConstants } from './constraints.js';
 import { JwtStrategy } from './jwt.strategy.js';
+import { PrismaService } from '../prisma/prisma.service.js';
 
 @Module({
   imports: [UsersModule, PassportModule, JwtModule.register({
@@ -14,7 +14,7 @@ import { JwtStrategy } from './jwt.strategy.js';
     signOptions: { expiresIn: '60s' }
   })],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, PrismaService],
   exports: [AuthService]
 })
 export class AuthModule {}

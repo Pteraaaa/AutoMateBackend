@@ -19,6 +19,8 @@ model User{
   email String @unique
   name String
   createdAt DateTime @default(now())
+
+  credential Credential?
 }
 
 model Workshop{
@@ -28,6 +30,14 @@ model Workshop{
   rating Float
   serviceTypes ServiceType[]
   phoneNumber String @unique
+}
+
+model Credential{
+  id Int @id @default(autoincrement())
+  password String
+
+  userId Int @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum ServiceType{
