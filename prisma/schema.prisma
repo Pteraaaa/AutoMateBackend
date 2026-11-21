@@ -18,18 +18,41 @@ model User{
   phoneNumber String @unique
   email String @unique
   name String
+
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
 
   credential Credential?
+  cars Car[]
+  bookings Booking[]
 }
 
 model Workshop{
   id Int @id @default(autoincrement())
   name String
+  description String?
   address String
-  rating Float
-  serviceTypes ServiceType[]
+  latitude Float
+  longitude Float
+  rating Float?
   phoneNumber String @unique
+
+  services WorkshopService[]
+  bookings Booking[]
+}
+
+model WorkshopService{
+  id Int @id @default(autoincrement())
+  service ServiceType
+  price Decimal @db.Decimal(10, 2)
+  duration Int?
+
+  workshopId Int
+  workshop Workshop @relation(fields: [workshopId], references: [id])
+
+  bookings BookingService[]
+
+  @@unique([workshopId, service])
 }
 
 model Credential{
@@ -40,13 +63,85 @@ model Credential{
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Car{
+  id Int @id @default(autoincrement())
+  brand String
+  model String
+  year Int
+  licensePlate String @unique
+  transmission Transmission
+  fuelType FuelType
+  createdAt DateTime @default(now())
+
+  ownerId Int
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  bookings Booking[]
+}
+
+model Booking{
+  id Int @id @default(autoincrement())
+  appointmentAt DateTime
+  totalPrice Decimal @db.Decimal(10, 2) 
+  notes String?
+  status BookingStatus @default(PENDING)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId Int
+  user User @relation(fields: [userId], references: [id])
+
+  carId Int
+  car Car @relation(fields: [carId], references: [id])
+
+  workshopId Int
+  workshop Workshop @relation(fields: [workshopId], references: [id])
+
+  services BookingService[]
+}
+
+model BookingService{
+  id Int @id @default(autoincrement())
+  
+  bookedPrice Decimal @db.Decimal(10, 2)
+
+  bookingId Int
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  workshopServiceId Int
+  workshopService WorkshopService @relation(fields: [workshopServiceId], references: [id])
+
+  @@unique([bookingId, workshopServiceId])
+}
+
+enum Transmission{
+  MANUAL
+  AUTOMATIC
+}
+
+enum FuelType{
+  GAS
+  DIESEL
+  ELECTRIC
+  HYBRID
+}
+
 enum ServiceType{
   ROUTINE
   OIL_FILTER
   BRAKES
-  ELECTRICAl
+  ELECTRICAL
   BODY_PAINT
   TUNE_UP
   EMERGENCY
   MECHANIC
+}
+
+enum BookingStatus{
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
 }
